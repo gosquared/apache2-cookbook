@@ -1,28 +1,30 @@
+class Chef::Resource
+  include Apache2::Passwd
+end
+
 action :add do
-  ruby_block "Adding #{new_resource.username} to Apache authentication" do
-    block do
-      htdigest = %x{printf "#{new_resource.username}:Authorized:#{new_resource.password}" | md5sum | cut -d' ' -f1}.chomp
-      unless ::File.read("/etc/apache2/.passwds").include? "#{new_resource.username}:Authorized:#{htdigest}"
-        ::File.open("/etc/apache2/.passwds", 'a') { |f| f.puts "#{new_resource.username}:Authorized:#{htdigest}" }
-      end
-    end
+  execute "Adding #{new_resource.username} to Apache authentication" do
+    command %{
+      if [ $(grep -c #{htdigest.first} #{new_resource.passwd_file}) -gt 0 ]; then
+        sed -i 's/#{htdigest.first}.*/#{htdigest}/g' #{new_resource.passwd_file}
+      else
+        echo #{htdigest} >> #{new_resource.passwd_file}
+      fi
+    }
+    only_if "[ $(egrep -c '#{htdigest}$' #{new_resource.passwd_file}) -eq 0 ]"
   end
 end
 
 action :remove do
-  ruby_block "Removing #{new_resource.username} from Apache authentication" do
-    block do
-      unless ::File.size("/etc/apache2/.passwds") == 0
-        apache_passwds = Chef::Util::FileEdit.new("/etc/apache2/.passwds")
-        apache_passwds.search_file_replace_line("#{new_resource.username}:Authorized:#{htdigest}", "")
-        apache_passwds.write_file
-      end
-    end
+  execute "Removing #{new_resource.username} from Apache authentication" do
+    command %{
+      sed -i '/#{htdigest.first}.*/ d' #{new_resource.passwd_file}
+    }
   end
 end
 
 def load_current_resource
-  file "/etc/apache2/.passwds" do
+  file new_resource.passwd_file do
     mode "0644"
     owner "root"
     group "root"
