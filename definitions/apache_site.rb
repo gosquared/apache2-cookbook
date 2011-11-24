@@ -25,9 +25,11 @@ define :apache_site, :enable => true do
       command "/usr/sbin/a2ensite #{params[:name]}"
       notifies :restart, resources(:service => "apache2")
       only_if do
-        apache_vhost = "#{node[:apache][:dir]}/sites-available/#{params[:name]}"
-        if ::File.exists?(apache_vhost)
-          ::File.stat(apache_vhost).ctime > Time.now - 60
+        apache_vhost_available = "#{node[:apache][:dir]}/sites-available/#{params[:name]}"
+        apache_vhost_enabled = "#{node[:apache][:dir]}/sites-enabled/#{params[:name]}"
+        if ::File.exists?(apache_vhost_available)
+          ::File.stat(apache_vhost_available).ctime > Time.now - 60 ||
+          !::File.exists?(apache_vhost_enabled)
         end
       end
     end
