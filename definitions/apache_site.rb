@@ -23,7 +23,7 @@ define :apache_site, :enable => true do
   if params[:enable]
     execute "a2ensite #{params[:name]}" do
       command "/usr/sbin/a2ensite #{params[:name]}"
-      notifies :restart, resources(:service => "apache2")
+      notifies :restart, resources(:service => "apache2"), :delayed
       only_if do
         apache_vhost_available = "#{node[:apache][:dir]}/sites-available/#{params[:name]}"
         apache_vhost_enabled = "#{node[:apache][:dir]}/sites-enabled/#{params[:name]}"
@@ -36,7 +36,7 @@ define :apache_site, :enable => true do
   else
     execute "a2dissite #{params[:name]}" do
       command "/usr/sbin/a2dissite #{params[:name]}"
-      notifies :restart, resources(:service => "apache2")
+      notifies :restart, resources(:service => "apache2"), :delayed
       only_if { ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/#{params[:name]}") }
     end
   end
