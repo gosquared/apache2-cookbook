@@ -1,0 +1,34 @@
+<VirtualHost *:80>
+  ServerName <%= @application_name %>
+<%- if @params[:aliases] -%>
+  ServerAlias <%= @params[:aliases].join(" ") %>
+<%- end -%>
+
+  DocumentRoot <%= @params[:path] %>/public
+
+  ProxyRequests Off
+  <Proxy *>
+      Order Allow,Deny
+      Allow from all
+  </Proxy>
+  ProxyPass / http://127.0.0.1:<%= @params[:port] %>/
+  ProxyPassReverse / http://127.0.0.1:<%= @params[:port] %>/
+  ProxyVia On
+
+  LogLevel info
+  ErrorLog <%= @params[:path] %>/log/error.log
+  CustomLog <%= @params[:path] %>/log/access.log common
+
+  RewriteEngine on
+<%- if @params[:rewrites] -%>
+  # Custom rewrites
+  <%- @params[:rewrites].each do |condition, rewrite| -%>
+  RewriteRule <%= condition %> <%= rewrite %> [R=301,L]
+  <%- end -%>
+<%- end -%>
+
+  # Disabled?
+  RewriteCond %{DOCUMENT_ROOT}/disabled.html -f
+  RewriteCond %{SCRIPT_FILENAME} !disabled.html
+  RewriteRule ^.*$ /disabled.html [L]
+</VirtualHost>

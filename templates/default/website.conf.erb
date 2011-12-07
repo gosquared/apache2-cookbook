@@ -1,0 +1,35 @@
+<%- website_root = "/home/#{@params[:user]}/#{@application_name}" -%>
+<VirtualHost *:80>
+  ServerName <%= @application_name %>
+<%- if @params[:aliases] -%>
+  ServerAlias <%= @params[:aliases].join(" ") %>
+<%- end -%>
+  DocumentRoot <%= website_root %>/public
+
+  <Directory />
+    Options -Indexes
+  </Directory>
+
+  LogLevel info
+  ErrorLog <%= website_root %>/log/error.log
+  CustomLog <%= website_root %>/log/access.log common
+
+  RewriteEngine on
+<%- if @params[:rewrites] -%>
+  # Custom rewrites
+  <%- @params[:rewrites].each do |condition, rewrite| -%>
+  RewriteRule <%= condition %> <%= rewrite %> [R=301,L]
+  <%- end -%>
+<%- end -%>
+<%- unless @params[:noncanonical] -%>
+  # Canonical host, <%= @application_name %>
+  RewriteCond %{HTTP_HOST}   !^<%= @application_name %> [NC]
+  RewriteCond %{HTTP_HOST}   !^$
+  RewriteRule ^/(.*)$        http://<%= @application_name %>/$1 [L,R=301]
+<%- end -%>
+
+  # Disabled?
+  RewriteCond %{DOCUMENT_ROOT}/disabled.html -f
+  RewriteCond %{SCRIPT_FILENAME} !disabled.html
+  RewriteRule ^.*$ /disabled.html [L]
+</VirtualHost>
