@@ -1,7 +1,3 @@
-class Chef::Resource
-  include Apache2::Passwd
-end
-
 action :add do
   execute "Adding #{new_resource.username} to Apache authentication" do
     command %{
@@ -24,10 +20,12 @@ action :remove do
 end
 
 def load_current_resource
+  extend Apache2::Passwd
+
   file new_resource.passwd_file do
-    mode "0644"
     owner "root"
     group "root"
+    mode 0644
     action :create_if_missing
     backup false
   end
