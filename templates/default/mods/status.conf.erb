@@ -12,8 +12,7 @@ ExtendedStatus On
     SetHandler server-status
     Order deny,allow
     Deny from all
-    Allow from localhost ip6-localhost
-#    Allow from .example.com
+    Allow from 127.0.0.1 localhost ip6-localhost
 </Location>
 
 </IfModule>
