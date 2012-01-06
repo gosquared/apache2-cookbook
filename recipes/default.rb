@@ -146,7 +146,7 @@ template "apache2.conf" do
   owner "root"
   group "root"
   mode 0644
-  notifies :restart, resources(:service => "apache2")
+  notifies :restart, resources(:service => "apache2"), :delayed
 end
 
 template "security" do
@@ -156,7 +156,7 @@ template "security" do
   group "root"
   mode 0644
   backup false
-  notifies :restart, resources(:service => "apache2")
+  notifies :restart, resources(:service => "apache2"), :delayed
 end
 
 template "charset" do
@@ -166,7 +166,7 @@ template "charset" do
   group "root"
   mode 0644
   backup false
-  notifies :restart, resources(:service => "apache2")
+  notifies :restart, resources(:service => "apache2"), :delayed
 end
 
 template "#{node[:apache][:dir]}/ports.conf" do
@@ -175,7 +175,7 @@ template "#{node[:apache][:dir]}/ports.conf" do
   owner "root"
   variables :apache_listen_ports => node[:apache][:listen_ports]
   mode 0644
-  notifies :restart, resources(:service => "apache2")
+  notifies :restart, resources(:service => "apache2"), :delayed
 end
 
 template "#{node[:apache][:dir]}/sites-available/default" do
@@ -183,7 +183,7 @@ template "#{node[:apache][:dir]}/sites-available/default" do
   owner "root"
   group "root"
   mode 0644
-  notifies :restart, resources(:service => "apache2")
+  notifies :restart, resources(:service => "apache2"), :delayed
 end
 
 include_recipe "apache2::mod_status"
