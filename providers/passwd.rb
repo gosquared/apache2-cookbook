@@ -20,7 +20,7 @@ action :remove do
 end
 
 def load_current_resource
-  extend Apache2::Passwd
+  extend Bootstrap::Passwd
 
   file new_resource.passwd_file do
     owner "root"
