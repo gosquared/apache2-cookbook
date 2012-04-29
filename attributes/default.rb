@@ -68,7 +68,7 @@ default[:apache][:serversignature] = "On"
 default[:apache][:traceenable] = "On"
 
 # mod_auth_openids
-default[:apache][:allowed_openids] = Array.new
+default[:apache][:allowed_openids] = []
 
 # Prefork Attributes
 default[:apache][:prefork][:startservers] = 16
@@ -85,3 +85,5 @@ default[:apache][:worker][:minsparethreads] = 64
 default[:apache][:worker][:maxsparethreads] = 192
 default[:apache][:worker][:threadsperchild] = 64
 default[:apache][:worker][:maxrequestsperchild] = 0
+
+default[:apache][:modules] = []
