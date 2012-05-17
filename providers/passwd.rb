@@ -20,6 +20,7 @@ action :remove do
 end
 
 def load_current_resource
+  require ::File.expand_path('../../../bootstrap/lib/passwd', __FILE__)
   extend Bootstrap::Passwd
 
   file new_resource.passwd_file do
